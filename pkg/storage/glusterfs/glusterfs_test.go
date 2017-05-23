@@ -41,7 +41,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	fakeclientset "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/pkg/api"
-	"k8s.io/client-go/pkg/api/unversioned"
+	"k8s.io/client-go/pkg/api/v1"
 	restclient "k8s.io/client-go/rest"
 	fakerestclient "k8s.io/client-go/rest/fake"
 )
@@ -64,7 +64,7 @@ func getGlusterStorageFromStorageOperator(o qmstorage.StorageType) *GlusterStora
 }
 
 // Create fake service
-func getHeketiServiceObject(t *testing.T, namespace, fakeURL string) *api.Service {
+func getHeketiServiceObject(t *testing.T, namespace, fakeURL string) *v1.Service {
 	u, err := url.Parse(fakeURL)
 	tests.Assert(t, err == nil)
 
@@ -74,14 +74,14 @@ func getHeketiServiceObject(t *testing.T, namespace, fakeURL string) *api.Servic
 	tests.Assert(t, err == nil)
 	port := int32(porti)
 
-	return &api.Service{
+	return &v1.Service{
 		ObjectMeta: meta.ObjectMeta{
 			Name:      "heketi",
 			Namespace: namespace,
 		},
-		Spec: api.ServiceSpec{
+		Spec: v1.ServiceSpec{
 			ClusterIP: hostname,
-			Ports: []api.ServicePort{
+			Ports: []v1.ServicePort{
 				{
 					Port: port,
 				},
@@ -91,7 +91,7 @@ func getHeketiServiceObject(t *testing.T, namespace, fakeURL string) *api.Servic
 }
 
 func TestNewGlusterFSStorage(t *testing.T) {
-	c := &clientset.Clientset{}
+	c := &fakeclientset.Clientset{}
 	r := &restclient.RESTClient{}
 
 	op, err := New(c, r)
@@ -131,7 +131,7 @@ func TestGlusterFSAddClusterNoHeketi(t *testing.T) {
 
 	// Don't wait for deployemnt
 	defer tests.Patch(&waitForDeploymentFn,
-		func(client clientset.Interface, namespace, name string, available int32) error {
+		func(client kubernetes.Interface, namespace, name string, available int32) error {
 			return nil
 		}).Restore()
 	defer tests.Patch(&max_loops, 1).Restore()
@@ -171,7 +171,7 @@ func TestGlusterFSAddNewClusterWithHeketi(t *testing.T) {
 
 	// Don't wait for deployemnt
 	defer tests.Patch(&waitForDeploymentFn,
-		func(client clientset.Interface, namespace, name string, available int32) error {
+		func(client kubernetes.Interface, namespace, name string, available int32) error {
 			return nil
 		}).Restore()
 
@@ -185,7 +185,7 @@ func TestGlusterFSAddNewClusterWithHeketi(t *testing.T) {
 	tests.Assert(t, err == nil)
 
 	retc, err := op.AddCluster(c)
-	tests.Assert(t, err == nil)
+	tests.Assert(t, err == nil, err)
 	tests.Assert(t, retc != nil)
 	tests.Assert(t, len(retc.Spec.GlusterFS.Cluster) != 0)
 }
@@ -214,7 +214,7 @@ func TestGlusterFSExistingClusterWithHeketi(t *testing.T) {
 
 	// Don't wait for deployemnt
 	defer tests.Patch(&waitForDeploymentFn,
-		func(client clientset.Interface, namespace, name string, available int32) error {
+		func(client kubernetes.Interface, namespace, name string, available int32) error {
 			return nil
 		}).Restore()
 
@@ -260,7 +260,7 @@ func TestGlusterFSMakeDeployment(t *testing.T) {
 		},
 	}
 
-	op, err := New(&clientset.Clientset{}, &restclient.RESTClient{})
+	op, err := New(&kubernetes.Clientset{}, &restclient.RESTClient{})
 	tests.Assert(t, err == nil)
 	tests.Assert(t, op != nil)
 
@@ -277,7 +277,7 @@ func TestGlusterFSMakeDeployment(t *testing.T) {
 	// Test
 	tests.Assert(t, deploy.Name == n.Name)
 	tests.Assert(t, deploy.Namespace == n.Namespace)
-	tests.Assert(t, deploy.Spec.Replicas == 1)
+	tests.Assert(t, *deploy.Spec.Replicas == 1)
 	tests.Assert(t, deploy.Spec.Template.Labels["quartermaster"] == n.Name)
 	tests.Assert(t, deploy.Spec.Template.Name == n.Name)
 	tests.Assert(t, reflect.DeepEqual(deploy.Spec.Template.Spec.NodeSelector, n.Spec.NodeSelector))
@@ -338,7 +338,7 @@ func TestGlusterFSAddNewNodeWithHeketi(t *testing.T) {
 
 	// Don't wait for deployemnt
 	defer tests.Patch(&waitForDeploymentFn,
-		func(client clientset.Interface, namespace, name string, available int32) error {
+		func(client kubernetes.Interface, namespace, name string, available int32) error {
 			return nil
 		}).Restore()
 
@@ -458,7 +458,7 @@ func TestGlusterFSAddNewNodeWithDevices(t *testing.T) {
 
 	// Don't wait for deployemnt
 	defer tests.Patch(&waitForDeploymentFn,
-		func(client clientset.Interface, namespace, name string, available int32) error {
+		func(client kubernetes.Interface, namespace, name string, available int32) error {
 			return nil
 		}).Restore()
 
@@ -581,7 +581,7 @@ func TestGlusterFSAddNewNodeAddOneDevice(t *testing.T) {
 
 	// Don't wait for deployemnt
 	defer tests.Patch(&waitForDeploymentFn,
-		func(client clientset.Interface, namespace, name string, available int32) error {
+		func(client kubernetes.Interface, namespace, name string, available int32) error {
 			return nil
 		}).Restore()
 
