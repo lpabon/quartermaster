@@ -24,11 +24,12 @@ import (
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	restclient "k8s.io/client-go/rest"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/util/intstr"
 )
 
 var (
@@ -174,7 +175,7 @@ func (st *SwiftStorage) DeleteCluster(c *spec.StorageCluster) error {
 }
 
 func (st *SwiftStorage) MakeDeployment(s *spec.StorageNode,
-	old *extensions.Deployment) (*extensions.Deployment, error) {
+	old *v1beta1.Deployment) (*v1beta1.Deployment, error) {
 
 	logger.Debug("Make deployment for node %v", s.GetName())
 	if s.Spec.Image == "" {
@@ -189,7 +190,7 @@ func (st *SwiftStorage) MakeDeployment(s *spec.StorageNode,
 		lmap[k] = v
 	}
 	lmap["quartermaster"] = s.Name
-	deployment := &extensions.Deployment{
+	deployment := &v1beta1.Deployment{
 		ObjectMeta: meta.ObjectMeta{
 			Name:        s.Name,
 			Namespace:   s.Namespace,
@@ -204,28 +205,29 @@ func (st *SwiftStorage) MakeDeployment(s *spec.StorageNode,
 	return deployment, nil
 }
 
-func (st *SwiftStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.DeploymentSpec, error) {
+func (st *SwiftStorage) makeDeploymentSpec(s *spec.StorageNode) (*v1beta1.DeploymentSpec, error) {
 
-	volumes := []api.Volume{
-		api.Volume{
+	volumes := []v1.Volume{
+		v1.Volume{
 			Name: "swift-storage-etc",
-			VolumeSource: api.VolumeSource{
-				HostPath: &api.HostPathVolumeSource{
+			VolumeSource: v1.VolumeSource{
+				HostPath: &v1.HostPathVolumeSource{
 					Path: "/var/lib/swift_storage/etc",
 				},
 			},
 		},
 	}
 
-	mounts := []api.VolumeMount{
-		api.VolumeMount{
+	mounts := []v1.VolumeMount{
+		v1.VolumeMount{
 			Name:      "swift-storage-etc",
 			MountPath: "/etc/swift",
 		},
 	}
-	spec := &extensions.DeploymentSpec{
-		Replicas: 1,
-		Template: api.PodTemplateSpec{
+	replicas := uint32(1)
+	spec := &v1beta1.DeploymentSpec{
+		Replicas: &replicas,
+		Template: v1.PodTemplateSpec{
 			ObjectMeta: meta.ObjectMeta{
 				Labels: map[string]string{
 					// Drivers *should* add a quartermaster label
@@ -233,34 +235,34 @@ func (st *SwiftStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.Dep
 					"swift_storage": s.GetName(),
 				},
 			},
-			Spec: api.PodSpec{
+			Spec: v1.PodSpec{
 				NodeName:     s.Spec.NodeName,
 				NodeSelector: s.Spec.NodeSelector,
-				Containers: []api.Container{
-					api.Container{
+				Containers: []v1.Container{
+					v1.Container{
 						Name:            s.Name,
 						Image:           s.Spec.Image,
-						ImagePullPolicy: api.PullIfNotPresent,
+						ImagePullPolicy: v1.PullIfNotPresent,
 						VolumeMounts:    mounts,
-						Ports: []api.ContainerPort{
-							api.ContainerPort{
+						Ports: []v1.ContainerPort{
+							v1.ContainerPort{
 								// object server
 								ContainerPort: 6200,
 							},
-							api.ContainerPort{
+							v1.ContainerPort{
 								// container server
 								ContainerPort: 6201,
 							},
-							api.ContainerPort{
+							v1.ContainerPort{
 								// account server
 								ContainerPort: 6200,
 							},
 						},
 					},
-					api.Container{
+					v1.Container{
 						Name:            "swift-ring-minion",
 						Image:           "thiagodasilva/swift_ring_minion:dev-v5",
-						ImagePullPolicy: api.PullIfNotPresent,
+						ImagePullPolicy: v1.PullIfNotPresent,
 						VolumeMounts:    mounts,
 					},
 				},
@@ -367,7 +369,7 @@ func (st *SwiftStorage) deployProxy(namespace string) error {
 			MountPath: "/etc/swift",
 		},
 	}
-	proxyDeploy := &extensions.Deployment{
+	proxyDeploy := &v1beta1.Deployment{
 		ObjectMeta: meta.ObjectMeta{
 			Name:      "swift-proxy-deploy",
 			Namespace: namespace,

@@ -27,7 +27,7 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
-	"k8s.io/client-go/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	restclient "k8s.io/client-go/rest"
 
 	heketiclient "github.com/heketi/heketi/client/api/go-client"
@@ -151,7 +151,7 @@ func (st *GlusterStorage) DeleteCluster(c *spec.StorageCluster) error {
 }
 
 func (st *GlusterStorage) MakeDeployment(s *spec.StorageNode,
-	old *extensions.Deployment) (*extensions.Deployment, error) {
+	old *v1beta1.Deployment) (*v1beta1.Deployment, error) {
 
 	// TODO(lpabon): Make this required
 	if s.Spec.Image == "" {
@@ -167,7 +167,7 @@ func (st *GlusterStorage) MakeDeployment(s *spec.StorageNode,
 		lmap[k] = v
 	}
 	lmap["quartermaster"] = s.Name
-	deployment := &extensions.Deployment{
+	deployment := &v1beta1.Deployment{
 		ObjectMeta: meta.ObjectMeta{
 			Name:        s.Name,
 			Namespace:   s.Namespace,

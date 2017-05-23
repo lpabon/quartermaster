@@ -17,8 +17,8 @@ package client
 import (
 	"encoding/json"
 
+	"k8s.io/client-go/pkg/api"
 	restclient "k8s.io/client-go/rest"
-	"k8s.io/kubernetes/pkg/api"
 )
 
 type transport struct {

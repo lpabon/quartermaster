@@ -21,8 +21,8 @@ import (
 
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/api"
-	"k8s.io/client-go/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	restclient "k8s.io/client-go/rest"
 )
 
@@ -114,7 +114,7 @@ func (st *MockStorage) DeleteCluster(c *spec.StorageCluster) error {
 }
 
 func (st *MockStorage) MakeDeployment(s *spec.StorageNode,
-	old *extensions.Deployment) (*extensions.Deployment, error) {
+	old *v1beta1.Deployment) (*v1beta1.Deployment, error) {
 
 	logger.Debug("Make deployment for node %v", s.GetName())
 	if s.Spec.Image == "" {
@@ -130,7 +130,7 @@ func (st *MockStorage) MakeDeployment(s *spec.StorageNode,
 		lmap[k] = v
 	}
 	lmap["quartermaster"] = s.Name
-	deployment := &extensions.Deployment{
+	deployment := &v1beta1.Deployment{
 		ObjectMeta: meta.ObjectMeta{
 			Name:        s.Name,
 			Namespace:   s.Namespace,
@@ -145,11 +145,12 @@ func (st *MockStorage) MakeDeployment(s *spec.StorageNode,
 	return deployment, nil
 }
 
-func (st *MockStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.DeploymentSpec, error) {
+func (st *MockStorage) makeDeploymentSpec(s *spec.StorageNode) (*v1beta1.DeploymentSpec, error) {
 
-	spec := &extensions.DeploymentSpec{
-		Replicas: 1,
-		Template: api.PodTemplateSpec{
+	replicas := int32(1)
+	spec := &v1beta1.DeploymentSpec{
+		Replicas: &replicas,
+		Template: v1.PodTemplateSpec{
 			ObjectMeta: meta.ObjectMeta{
 				Labels: map[string]string{
 					"nfs-ganesha-node": s.Name,
@@ -159,14 +160,14 @@ func (st *MockStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.Depl
 				},
 				Name: s.Name,
 			},
-			Spec: api.PodSpec{
+			Spec: v1.PodSpec{
 				NodeName:     s.Spec.NodeName,
 				NodeSelector: s.Spec.NodeSelector,
-				Containers: []api.Container{
-					api.Container{
+				Containers: []v1.Container{
+					v1.Container{
 						Name:            s.Name,
 						Image:           s.Spec.Image,
-						ImagePullPolicy: api.PullIfNotPresent,
+						ImagePullPolicy: v1.PullIfNotPresent,
 					},
 				},
 			},

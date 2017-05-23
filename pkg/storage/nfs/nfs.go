@@ -28,9 +28,8 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/api/v1"
-	"k8s.io/client-go/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	restclient "k8s.io/client-go/rest"
 )
 
@@ -66,7 +65,7 @@ func (st *NfsStorage) Init() error {
 }
 
 func (st *NfsStorage) MakeDeployment(s *spec.StorageNode,
-	old *extensions.Deployment) (*extensions.Deployment, error) {
+	old *v1beta1.Deployment) (*v1beta1.Deployment, error) {
 
 	if s.Spec.Image == "" {
 		s.Spec.Image = "quay.io/luis_pabon0/ganesha:latest"
@@ -80,7 +79,7 @@ func (st *NfsStorage) MakeDeployment(s *spec.StorageNode,
 		lmap[k] = v
 	}
 	lmap["quartermaster"] = s.Name
-	deployment := &extensions.Deployment{
+	deployment := &v1beta1.Deployment{
 		ObjectMeta: meta.ObjectMeta{
 			Name:        s.Name,
 			Namespace:   s.Namespace,
@@ -100,34 +99,35 @@ func dashifyPath(s string) string {
 	return strings.Replace(s, "/", "-", -1)
 }
 
-func (st *NfsStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.DeploymentSpec, error) {
+func (st *NfsStorage) makeDeploymentSpec(s *spec.StorageNode) (*v1beta1.DeploymentSpec, error) {
 	if len(s.Spec.Devices) != 0 {
 		return nil, fmt.Errorf("NFS does not support raw device access")
 	}
-	var volumes []api.Volume
-	var mounts []api.VolumeMount
+	var volumes []v1.Volume
+	var mounts []v1.VolumeMount
 
 	for _, path := range s.Spec.Directories {
 		dash := dashifyPath(path)
-		volumes = append(volumes, api.Volume{
+		volumes = append(volumes, v1.Volume{
 			Name: dash,
-			VolumeSource: api.VolumeSource{
-				HostPath: &api.HostPathVolumeSource{
+			VolumeSource: v1.VolumeSource{
+				HostPath: &v1.HostPathVolumeSource{
 					Path: path,
 				},
 			},
 		})
-		mounts = append(mounts, api.VolumeMount{
+		mounts = append(mounts, v1.VolumeMount{
 			Name:      dash,
 			MountPath: path,
 		})
 	}
 
 	privileged := true
+	replicas := int32(1)
 
-	spec := &extensions.DeploymentSpec{
-		Replicas: 1,
-		Template: api.PodTemplateSpec{
+	spec := &v1beta1.DeploymentSpec{
+		Replicas: &replicas,
+		Template: v1.PodTemplateSpec{
 			ObjectMeta: meta.ObjectMeta{
 				Labels: map[string]string{
 					"name":             s.Name,
@@ -136,33 +136,33 @@ func (st *NfsStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.Deplo
 				},
 				Name: s.Name,
 			},
-			Spec: api.PodSpec{
+			Spec: v1.PodSpec{
 				NodeName:     s.Spec.NodeName,
 				NodeSelector: s.Spec.NodeSelector,
-				Containers: []api.Container{
-					api.Container{
+				Containers: []v1.Container{
+					v1.Container{
 						Name:            s.Name,
 						Image:           s.Spec.Image,
-						ImagePullPolicy: api.PullIfNotPresent,
+						ImagePullPolicy: v1.PullIfNotPresent,
 						VolumeMounts:    mounts,
-						SecurityContext: &api.SecurityContext{
+						SecurityContext: &v1.SecurityContext{
 							Privileged: &privileged,
 						},
 
-						Ports: []api.ContainerPort{
-							api.ContainerPort{
+						Ports: []v1.ContainerPort{
+							v1.ContainerPort{
 								Name:          "nfs",
 								ContainerPort: 2049,
 								//TODO(barakmich)
 								// HostIP: <get IP from spec>
 							},
-							api.ContainerPort{
+							v1.ContainerPort{
 								Name:          "mountd",
 								ContainerPort: 20048,
 								//TODO(barakmich)
 								// HostIP: <get IP from spec>
 							},
-							api.ContainerPort{
+							v1.ContainerPort{
 								Name:          "rpcbind",
 								ContainerPort: 111,
 								//TODO(barakmich)

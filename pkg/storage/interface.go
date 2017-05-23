@@ -18,7 +18,7 @@ import (
 	"github.com/coreos/quartermaster/pkg/spec"
 
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	restclient "k8s.io/client-go/rest"
 )
 
@@ -55,7 +55,7 @@ type StorageNodeInterface interface {
 	// We use Deployments for now because they can handle rollouts and updates
 	// well.  We could deploy other object deployment types in the future like
 	// (StatefulSets, DaemonSets, etc).
-	MakeDeployment(s *spec.StorageNode, old *extensions.Deployment) (*extensions.Deployment, error)
+	MakeDeployment(s *spec.StorageNode, old *v1beta1.Deployment) (*v1beta1.Deployment, error)
 
 	// AddNode is called by Quartermaster when a deployment is Ready and is
 	// avaiable to be managed by the driver.  AddNode may save metadata on the

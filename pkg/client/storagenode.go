@@ -17,8 +17,8 @@ package client
 import (
 	"github.com/coreos/quartermaster/pkg/spec"
 
+	"k8s.io/client-go/pkg/api"
 	restclient "k8s.io/client-go/rest"
-	"k8s.io/kubernetes/pkg/api"
 )
 
 type StorageNodes struct {
