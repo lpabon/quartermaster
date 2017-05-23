@@ -27,9 +27,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/apis/extensions"
-	clientset "k8s.io/client-go/pkg/client/clientset_generated/internalclientset"
 	restclient "k8s.io/client-go/rest"
 )
 
@@ -38,11 +38,11 @@ var (
 )
 
 type NfsStorage struct {
-	client clientset.Interface
+	client kubernetes.Interface
 	qm     restclient.Interface
 }
 
-func New(client clientset.Interface, qm restclient.Interface) (qmstorage.StorageType, error) {
+func New(client kubernetes.Interface, qm restclient.Interface) (qmstorage.StorageType, error) {
 	s := &NfsStorage{
 		client: client,
 		qm:     qm,

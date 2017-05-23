@@ -24,22 +24,22 @@ import (
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
-	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	"k8s.io/kubernetes/pkg/util/intstr"
 )
 
 var (
 	logger              = utils.NewLogger("swift", utils.LEVEL_DEBUG)
-	waitForDeploymentFn = func(client clientset.Interface, namespace, name string, available int32) error {
+	waitForDeploymentFn = func(client kubernetes.Interface, namespace, name string, available int32) error {
 		return operator.WaitForDeploymentReady(client, namespace, name, available)
 	}
 )
 
 // This mock storage system serves as an example driver for developers
-func New(client clientset.Interface, qm restclient.Interface) (qmstorage.StorageType, error) {
+func New(client kubernetes.Interface, qm restclient.Interface) (qmstorage.StorageType, error) {
 	s := &SwiftStorage{
 		client: client,
 		qm:     qm,
@@ -96,7 +96,7 @@ func New(client clientset.Interface, qm restclient.Interface) (qmstorage.Storage
 }
 
 type SwiftStorage struct {
-	client clientset.Interface
+	client kubernetes.Interface
 	qm     restclient.Interface
 }
 

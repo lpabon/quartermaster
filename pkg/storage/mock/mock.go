@@ -20,10 +20,10 @@ import (
 	"github.com/heketi/utils"
 
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/apis/extensions"
 	restclient "k8s.io/client-go/rest"
-	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 )
 
 // This mock storage system serves as an example driver for developers
-func New(client clientset.Interface, qm restclient.Interface) (qmstorage.StorageType, error) {
+func New(client kubernetes.Interface, qm restclient.Interface) (qmstorage.StorageType, error) {
 	s := &MockStorage{
 		client: client,
 		qm:     qm,
@@ -88,7 +88,7 @@ func New(client clientset.Interface, qm restclient.Interface) (qmstorage.Storage
 }
 
 type MockStorage struct {
-	client clientset.Interface
+	client kubernetes.Interface
 	qm     restclient.Interface
 }
 

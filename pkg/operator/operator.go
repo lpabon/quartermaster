@@ -27,11 +27,12 @@ import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/apis/extensions"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
-	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	"k8s.io/kubernetes/pkg/kubectl"
 )
 
@@ -40,7 +41,7 @@ var (
 )
 
 type Operator struct {
-	kclient        *clientset.Clientset
+	kclient        *kubernetes.Clientset
 	rclient        *restclient.RESTClient
 	storageSystems map[spec.StorageTypeIdentifier]qmstorage.StorageType
 	nodeInf        cache.SharedIndexInformer
@@ -63,7 +64,7 @@ func New(c Config, storageFuns ...qmstorage.StorageTypeNewFunc) (*Operator, erro
 	if err != nil {
 		return nil, err
 	}
-	client, err := clientset.NewForConfig(cfg)
+	client, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -110,15 +111,15 @@ func (c *Operator) GetStorage(name spec.StorageTypeIdentifier) (qmstorage.Storag
 func (c *Operator) Run(stopc <-chan struct{}) error {
 	defer c.queue.close()
 
-	// Start notification worker
-	go c.worker()
-
 	// Test communication with server
 	v, err := c.kclient.Discovery().ServerVersion()
 	if err != nil {
 		return logger.LogError("communicating with server failed: %s", err)
 	}
-	logger.Info("connection to Kubernetes established. Cluster version %v", v)
+	logger.Info("connection to Kubernetes established. Cluster version %s", v.String())
+
+	// Start notification worker
+	go c.worker()
 
 	// Create ThirdPartyResources
 	if err := c.createTPRs(); err != nil {

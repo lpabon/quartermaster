@@ -38,12 +38,12 @@ import (
 
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"k8s.io/client-go/kubernetes"
+	fakeclientset "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/api/unversioned"
 	restclient "k8s.io/client-go/rest"
 	fakerestclient "k8s.io/client-go/rest/fake"
-	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	fakeclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset/fake"
 )
 
 func init() {

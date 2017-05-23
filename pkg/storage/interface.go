@@ -17,9 +17,9 @@ package storage
 import (
 	"github.com/coreos/quartermaster/pkg/spec"
 
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/apis/extensions"
 	restclient "k8s.io/client-go/rest"
-	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 )
 
 type StorageClusterInterface interface {
@@ -85,4 +85,4 @@ type StorageType interface {
 }
 
 // Registers driver with Quartermaster
-type StorageTypeNewFunc func(clientset.Interface, restclient.Interface) (StorageType, error)
+type StorageTypeNewFunc func(kubernetes.Interface, restclient.Interface) (StorageType, error)

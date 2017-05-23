@@ -20,8 +20,7 @@ package spec
 
 import (
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/api/unversioned"
+	"k8s.io/client-go/pkg/api"
 )
 
 // StorageNode defines a single instance of available storage on a
@@ -170,9 +169,9 @@ type NFSStorageNode struct {
 }
 
 type StatusCondition struct {
-	Time    unversioned.Time `json:"time,omitempty"`
-	Message string           `json:"message,omitempty"`
-	Reason  string           `json:"reason,omitempty"`
+	Time    meta.Time `json:"time,omitempty"`
+	Message string    `json:"message,omitempty"`
+	Reason  string    `json:"reason,omitempty"`
 }
 
 type StatusInfo struct {

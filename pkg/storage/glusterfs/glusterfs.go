@@ -25,10 +25,10 @@ import (
 	"github.com/heketi/utils"
 
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/apis/extensions"
 	restclient "k8s.io/client-go/rest"
-	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 
 	heketiclient "github.com/heketi/heketi/client/api/go-client"
 	heketiapi "github.com/heketi/heketi/pkg/glusterfs/api"
@@ -38,12 +38,12 @@ var (
 	logger              = utils.NewLogger("glusterfs", utils.LEVEL_DEBUG)
 	max_loops           = 12
 	max_wait            = 5 * time.Second
-	waitForDeploymentFn = func(client clientset.Interface, namespace, name string, available int32) error {
+	waitForDeploymentFn = func(client kubernetes.Interface, namespace, name string, available int32) error {
 		return operator.WaitForDeploymentReady(client, namespace, name, available)
 	}
 )
 
-func New(client clientset.Interface, qm restclient.Interface) (qmstorage.StorageType, error) {
+func New(client kubernetes.Interface, qm restclient.Interface) (qmstorage.StorageType, error) {
 	s := &GlusterStorage{
 		client: client,
 		qm:     qm,
@@ -64,7 +64,7 @@ func New(client clientset.Interface, qm restclient.Interface) (qmstorage.Storage
 }
 
 type GlusterStorage struct {
-	client clientset.Interface
+	client kubernetes.Interface
 	qm     restclient.Interface
 }
 
