@@ -20,10 +20,11 @@ import (
 	"time"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/pkg/api/v1"
 	restclient "k8s.io/client-go/rest"
-	"k8s.io/kubernetes/pkg/api/v1"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	"k8s.io/kubernetes/pkg/util/wait"
 )
 
 // WaitForTPRReady waits for a third party resource to be available
@@ -56,7 +57,7 @@ func WaitForTPRReady(restClient restclient.Interface, tprGroup, tprVersion, tprN
 func WaitForDeploymentReady(client clientset.Interface, namespace, name string, available int32) error {
 	return wait.Poll(3*time.Second, 10*time.Minute, func() (bool, error) {
 		deployments := client.Extensions().Deployments(namespace)
-		deployment, err := deployments.Get(name)
+		deployment, err := deployments.Get(name, meta.GetOptions{})
 		if err != nil {
 			return false, err
 		}

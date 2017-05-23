@@ -19,8 +19,8 @@ import (
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/pkg/apis/extensions"
 	kubestorage "k8s.io/kubernetes/pkg/apis/storage"
 )
 

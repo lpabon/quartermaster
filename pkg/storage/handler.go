@@ -17,7 +17,7 @@ package storage
 import (
 	"github.com/coreos/quartermaster/pkg/spec"
 	"github.com/lpabon/godbc"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/apis/extensions"
 )
 
 // StorageHandlerFuncs insulates the implementation from unsupported

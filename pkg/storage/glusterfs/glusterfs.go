@@ -25,9 +25,9 @@ import (
 	"github.com/heketi/utils"
 
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/pkg/apis/extensions"
 	restclient "k8s.io/client-go/rest"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 
 	heketiclient "github.com/heketi/heketi/client/api/go-client"

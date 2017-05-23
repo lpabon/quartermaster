@@ -24,14 +24,15 @@ import (
 	"github.com/heketi/utils"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/pkg/apis/extensions"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	"k8s.io/kubernetes/pkg/kubectl"
-	"k8s.io/kubernetes/pkg/labels"
-	utilruntime "k8s.io/kubernetes/pkg/util/runtime"
 )
 
 var (
@@ -310,7 +311,7 @@ func (c *Operator) reconcile(s *spec.StorageNode) error {
 			return logger.Err(err)
 		}
 
-		err = reaper.Stop(s.Namespace, s.Name, time.Minute, api.NewDeleteOptions(0))
+		err = reaper.Stop(s.Namespace, s.Name, time.Minute, meta.NewDeleteOptions(0))
 		if err != nil {
 			return logger.Err(err)
 		}

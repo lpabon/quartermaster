@@ -229,7 +229,7 @@ func (s *StorageClusterOperator) submitNodesFor(cs *spec.StorageCluster) error {
 	ns_client := qmclient.NewStorageNodes(s.op.GetRESTClient(), cs.Namespace)
 
 	// Create a reference object
-	clusterRef, err := api.GetReference(cs)
+	clusterRef, err := api.GetReference(api.Scheme, cs)
 	if err != nil {
 		return logger.Err(err)
 	}
