@@ -22,11 +22,12 @@ import (
 	qmstorage "github.com/coreos/quartermaster/pkg/storage"
 	"github.com/heketi/utils"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/api"
-	apierrors "k8s.io/kubernetes/pkg/api/errors"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/util/intstr"
 )
 
@@ -189,7 +190,7 @@ func (st *SwiftStorage) MakeDeployment(s *spec.StorageNode,
 	}
 	lmap["quartermaster"] = s.Name
 	deployment := &extensions.Deployment{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:        s.Name,
 			Namespace:   s.Namespace,
 			Annotations: s.Annotations,
@@ -225,7 +226,7 @@ func (st *SwiftStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.Dep
 	spec := &extensions.DeploymentSpec{
 		Replicas: 1,
 		Template: api.PodTemplateSpec{
-			ObjectMeta: api.ObjectMeta{
+			ObjectMeta: meta.ObjectMeta{
 				Labels: map[string]string{
 					// Drivers *should* add a quartermaster label
 					"quartermaster": s.Name,
@@ -273,7 +274,7 @@ func (st *SwiftStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.Dep
 func (st *SwiftStorage) AddNode(s *spec.StorageNode) (*spec.StorageNode, error) {
 	logger.Info("Adding node %v", s.GetName())
 	svc := &api.Service{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      s.GetName() + "-svc",
 			Namespace: s.Namespace,
 			Labels: map[string]string{
@@ -367,7 +368,7 @@ func (st *SwiftStorage) deployProxy(namespace string) error {
 		},
 	}
 	proxyDeploy := &extensions.Deployment{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "swift-proxy-deploy",
 			Namespace: namespace,
 			Annotations: map[string]string{
@@ -381,7 +382,7 @@ func (st *SwiftStorage) deployProxy(namespace string) error {
 		Spec: extensions.DeploymentSpec{
 			Replicas: 1,
 			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
+				ObjectMeta: meta.ObjectMeta{
 					Labels: map[string]string{
 						"swift":         "swift-proxy",
 						"quartermaster": "swift",
@@ -435,7 +436,7 @@ func (st *SwiftStorage) deployProxy(namespace string) error {
 
 func (st *SwiftStorage) deploySwiftProxyService(namespace string) error {
 	s := &api.Service{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "swiftservice",
 			Namespace: namespace,
 			Labels: map[string]string{
@@ -506,7 +507,7 @@ func (st *SwiftStorage) createRings(c *spec.StorageCluster) error {
 	}
 
 	ringMasterDeploy := &extensions.Deployment{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "swift-ring-master-deploy",
 			Namespace: c.Namespace,
 			Annotations: map[string]string{
@@ -520,7 +521,7 @@ func (st *SwiftStorage) createRings(c *spec.StorageCluster) error {
 		Spec: extensions.DeploymentSpec{
 			Replicas: 1,
 			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
+				ObjectMeta: meta.ObjectMeta{
 					Labels: map[string]string{
 						"swift":         "swift-ring-master",
 						"quartermaster": "swift",
@@ -574,7 +575,7 @@ func (st *SwiftStorage) createRings(c *spec.StorageCluster) error {
 
 func (st *SwiftStorage) deploySwiftRingMasterService(namespace string) error {
 	s := &api.Service{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "swift-ring-master-svc",
 			Namespace: namespace,
 			Labels: map[string]string{
@@ -618,7 +619,7 @@ func (st *SwiftStorage) deploySwiftRingMasterService(namespace string) error {
 func (st *SwiftStorage) createConfigMap(c *spec.StorageCluster) error {
 	cluster, _ := json.Marshal(c)
 	clusterConfMap := &api.ConfigMap{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name: "swift-cluster-configmap",
 		},
 		Data: map[string]string{

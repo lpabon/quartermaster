@@ -17,8 +17,8 @@ package client
 import (
 	"github.com/coreos/quartermaster/pkg/spec"
 
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/client/restclient"
 )
 
 type StorageNodes struct {
@@ -40,7 +40,7 @@ func (c *StorageNodes) Create(storageNode *spec.StorageNode) (result *spec.Stora
 }
 
 func (c *StorageNodes) Update(storageNode *spec.StorageNode) (result *spec.StorageNode, err error) {
-	obj, err := c.t.Update(storageNode, storageNode.GetName(), &spec.StorageNode{})
+	obj, err := c.t.Update(storageNode, storageNode.Name, &spec.StorageNode{})
 	if err != nil {
 		return nil, err
 	}

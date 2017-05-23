@@ -17,8 +17,8 @@ package client
 import (
 	"github.com/coreos/quartermaster/pkg/spec"
 
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/api"
-	"k8s.io/kubernetes/pkg/client/restclient"
 )
 
 type StorageClusters struct {
@@ -40,7 +40,7 @@ func (c *StorageClusters) Create(storageCluster *spec.StorageCluster) (result *s
 }
 
 func (c *StorageClusters) Update(storageCluster *spec.StorageCluster) (result *spec.StorageCluster, err error) {
-	obj, err := c.t.Update(storageCluster, storageCluster.GetName(), &spec.StorageCluster{})
+	obj, err := c.t.Update(storageCluster, storageCluster.Name, &spec.StorageCluster{})
 	if err != nil {
 		return nil, err
 	}

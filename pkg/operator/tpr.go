@@ -15,8 +15,9 @@
 package operator
 
 import (
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/kubernetes/pkg/api"
-	apierrors "k8s.io/kubernetes/pkg/api/errors"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 )
 
@@ -46,7 +47,7 @@ var (
 func (c *Operator) createTPRs() error {
 	tprs := []*extensions.ThirdPartyResource{
 		{
-			ObjectMeta: api.ObjectMeta{
+			ObjectMeta: meta.ObjectMeta{
 				Name: tprStorageStatus,
 			},
 			Versions: []extensions.APIVersion{
@@ -55,7 +56,7 @@ func (c *Operator) createTPRs() error {
 			Description: "Status reports from Quartermaster managed storage",
 		},
 		{
-			ObjectMeta: api.ObjectMeta{
+			ObjectMeta: meta.ObjectMeta{
 				Name: tprStorageNode,
 			},
 			Versions: []extensions.APIVersion{
@@ -64,7 +65,7 @@ func (c *Operator) createTPRs() error {
 			Description: "Managed storage nodes via Quartermaster",
 		},
 		{
-			ObjectMeta: api.ObjectMeta{
+			ObjectMeta: meta.ObjectMeta{
 				Name: tprStorageCluster,
 			},
 			Versions: []extensions.APIVersion{

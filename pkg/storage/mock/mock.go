@@ -19,10 +19,11 @@ import (
 	qmstorage "github.com/coreos/quartermaster/pkg/storage"
 	"github.com/heketi/utils"
 
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	"k8s.io/kubernetes/pkg/client/restclient"
 )
 
 var (
@@ -130,7 +131,7 @@ func (st *MockStorage) MakeDeployment(s *spec.StorageNode,
 	}
 	lmap["quartermaster"] = s.Name
 	deployment := &extensions.Deployment{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:        s.Name,
 			Namespace:   s.Namespace,
 			Annotations: s.Annotations,
@@ -149,7 +150,7 @@ func (st *MockStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.Depl
 	spec := &extensions.DeploymentSpec{
 		Replicas: 1,
 		Template: api.PodTemplateSpec{
-			ObjectMeta: api.ObjectMeta{
+			ObjectMeta: meta.ObjectMeta{
 				Labels: map[string]string{
 					"nfs-ganesha-node": s.Name,
 

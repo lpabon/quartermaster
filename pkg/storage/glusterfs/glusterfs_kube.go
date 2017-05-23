@@ -17,8 +17,9 @@ package glusterfs
 import (
 	"github.com/coreos/quartermaster/pkg/spec"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/kubernetes/pkg/api"
-	apierrors "k8s.io/kubernetes/pkg/api/errors"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	kubestorage "k8s.io/kubernetes/pkg/apis/storage"
 )
@@ -155,7 +156,7 @@ func (st *GlusterStorage) makeGlusterFSDeploymentSpec(s *spec.StorageNode) (*ext
 	spec := &extensions.DeploymentSpec{
 		Replicas: 1,
 		Template: api.PodTemplateSpec{
-			ObjectMeta: api.ObjectMeta{
+			ObjectMeta: meta.ObjectMeta{
 				Labels: map[string]string{
 					"quartermaster":  s.Name,
 					"name":           "glusterfs",
@@ -207,7 +208,7 @@ func (st *GlusterStorage) deployStorageClass(namespace string) error {
 
 	// Create storage class
 	storageclass := &kubestorage.StorageClass{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      scname,
 			Namespace: namespace,
 			Labels: map[string]string{

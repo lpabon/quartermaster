@@ -16,8 +16,9 @@ package glusterfs
 
 import (
 	"fmt"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/kubernetes/pkg/api"
-	apierrors "k8s.io/kubernetes/pkg/api/errors"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	"k8s.io/kubernetes/pkg/util/intstr"
 
@@ -74,7 +75,7 @@ func (st *GlusterStorage) deployHeketiPod(namespace string) error {
 
 	// Deployment for Heketi
 	d := &extensions.Deployment{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "heketi",
 			Namespace: namespace,
 			Annotations: map[string]string{
@@ -89,7 +90,7 @@ func (st *GlusterStorage) deployHeketiPod(namespace string) error {
 		Spec: extensions.DeploymentSpec{
 			Replicas: 1,
 			Template: api.PodTemplateSpec{
-				ObjectMeta: api.ObjectMeta{
+				ObjectMeta: meta.ObjectMeta{
 					Labels: map[string]string{"glusterfs": "heketi-deployment",
 						"heketi":        "heketi-deployment",
 						"quartermaster": "heketi",
@@ -185,7 +186,7 @@ func (st *GlusterStorage) deployHeketiPod(namespace string) error {
 
 func (st *GlusterStorage) deployHeketiServiceAccount(namespace string) error {
 	s := &api.ServiceAccount{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "heketi-service-account",
 			Namespace: namespace,
 		},
@@ -206,7 +207,7 @@ func (st *GlusterStorage) deployHeketiServiceAccount(namespace string) error {
 
 func (st *GlusterStorage) deployHeketiService(namespace string) error {
 	s := &api.Service{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "heketi",
 			Namespace: namespace,
 			Labels: map[string]string{

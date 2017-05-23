@@ -17,9 +17,9 @@ package storage
 import (
 	"github.com/coreos/quartermaster/pkg/spec"
 
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	"k8s.io/kubernetes/pkg/client/restclient"
 )
 
 type StorageClusterInterface interface {

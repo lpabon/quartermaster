@@ -24,10 +24,11 @@ import (
 	qmstorage "github.com/coreos/quartermaster/pkg/storage"
 	"github.com/heketi/utils"
 
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	"k8s.io/kubernetes/pkg/client/restclient"
 
 	heketiclient "github.com/heketi/heketi/client/api/go-client"
 	heketiapi "github.com/heketi/heketi/pkg/glusterfs/api"
@@ -167,7 +168,7 @@ func (st *GlusterStorage) MakeDeployment(s *spec.StorageNode,
 	}
 	lmap["quartermaster"] = s.Name
 	deployment := &extensions.Deployment{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:        s.Name,
 			Namespace:   s.Namespace,
 			Annotations: s.Annotations,

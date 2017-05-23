@@ -23,13 +23,14 @@ import (
 	qmstorage "github.com/coreos/quartermaster/pkg/storage"
 	"github.com/heketi/utils"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/api"
-	apierrors "k8s.io/kubernetes/pkg/api/errors"
-	"k8s.io/kubernetes/pkg/api/resource"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	"k8s.io/kubernetes/pkg/client/restclient"
-	"k8s.io/kubernetes/pkg/util/intstr"
 )
 
 var (
@@ -79,7 +80,7 @@ func (st *NfsStorage) MakeDeployment(s *spec.StorageNode,
 	}
 	lmap["quartermaster"] = s.Name
 	deployment := &extensions.Deployment{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:        s.Name,
 			Namespace:   s.Namespace,
 			Annotations: s.Annotations,
@@ -126,7 +127,7 @@ func (st *NfsStorage) makeDeploymentSpec(s *spec.StorageNode) (*extensions.Deplo
 	spec := &extensions.DeploymentSpec{
 		Replicas: 1,
 		Template: api.PodTemplateSpec{
-			ObjectMeta: api.ObjectMeta{
+			ObjectMeta: meta.ObjectMeta{
 				Labels: map[string]string{
 					"name":             s.Name,
 					"nfs-ganesha-node": s.Name,
@@ -246,7 +247,7 @@ func (st *NfsStorage) Type() spec.StorageTypeIdentifier {
 func (st *NfsStorage) deployPv(s *spec.StorageNode) error {
 
 	// Get IP to service
-	service, err := st.client.Core().Services(s.GetNamespace()).Get(s.GetName())
+	service, err := st.client.Core().Services(s.GetNamespace()).Get(s.GetName(), meta.GetOptions{})
 	if err != nil {
 		return logger.LogError("Failed to get network address from service %v/%v: %v",
 			s.GetNamespace(), s.GetName(), err)
@@ -269,7 +270,7 @@ func (st *NfsStorage) deployPv(s *spec.StorageNode) error {
 
 	// Create persistent volume
 	pv := &api.PersistentVolume{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      s.GetName(),
 			Namespace: s.GetNamespace(),
 			Annotations: map[string]string{
@@ -309,7 +310,7 @@ func (st *NfsStorage) deployPv(s *spec.StorageNode) error {
 
 func (st *NfsStorage) deployNfsService(namespace, name string) error {
 	s := &api.Service{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 			Annotations: map[string]string{

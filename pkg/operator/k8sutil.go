@@ -19,10 +19,10 @@ import (
 	"net/http"
 	"time"
 
-	apierrors "k8s.io/kubernetes/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/kubernetes/pkg/api/v1"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/util/wait"
 )
 

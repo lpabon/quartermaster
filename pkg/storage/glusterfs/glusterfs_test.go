@@ -36,12 +36,13 @@ import (
 	heketiclient "github.com/heketi/heketi/client/api/go-client"
 	"github.com/heketi/heketi/pkg/heketitest"
 
+	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	restclient "k8s.io/client-go/rest"
+	fakerestclient "k8s.io/client-go/rest/fake"
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/api/unversioned"
 	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	fakeclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset/fake"
-	"k8s.io/kubernetes/pkg/client/restclient"
-	fakerestclient "k8s.io/kubernetes/pkg/client/restclient/fake"
 	"k8s.io/kubernetes/pkg/runtime/serializer"
 )
 
@@ -74,7 +75,7 @@ func getHeketiServiceObject(t *testing.T, namespace, fakeURL string) *api.Servic
 	port := int32(porti)
 
 	return &api.Service{
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "heketi",
 			Namespace: namespace,
 		},
@@ -115,11 +116,11 @@ func TestGlusterFSInit(t *testing.T) {
 
 func TestGlusterFSAddClusterNoHeketi(t *testing.T) {
 	c := &spec.StorageCluster{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageCluster",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 		},
@@ -151,11 +152,11 @@ func TestGlusterFSAddClusterNoHeketi(t *testing.T) {
 
 func TestGlusterFSAddNewClusterWithHeketi(t *testing.T) {
 	c := &spec.StorageCluster{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageCluster",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 		},
@@ -191,11 +192,11 @@ func TestGlusterFSAddNewClusterWithHeketi(t *testing.T) {
 
 func TestGlusterFSExistingClusterWithHeketi(t *testing.T) {
 	c := &spec.StorageCluster{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageCluster",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 		},
@@ -238,11 +239,11 @@ func TestGlusterFSExistingClusterWithHeketi(t *testing.T) {
 
 func TestGlusterFSMakeDeployment(t *testing.T) {
 	n := &spec.StorageNode{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageNode",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 			Labels: map[string]string{
@@ -290,11 +291,11 @@ func TestGlusterFSMakeDeployment(t *testing.T) {
 
 func TestGlusterFSAddNewNodeWithHeketi(t *testing.T) {
 	c := &spec.StorageCluster{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageCluster",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 		},
@@ -304,11 +305,11 @@ func TestGlusterFSAddNewNodeWithHeketi(t *testing.T) {
 	}
 
 	n := &spec.StorageNode{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageNode",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 			Labels: map[string]string{
@@ -402,11 +403,11 @@ func TestGlusterFSAddNewNodeWithHeketi(t *testing.T) {
 
 func TestGlusterFSAddNewNodeWithDevices(t *testing.T) {
 	c := &spec.StorageCluster{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageCluster",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 		},
@@ -416,11 +417,11 @@ func TestGlusterFSAddNewNodeWithDevices(t *testing.T) {
 	}
 
 	n := &spec.StorageNode{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageNode",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 			Labels: map[string]string{
@@ -525,11 +526,11 @@ func TestGlusterFSAddNewNodeWithDevices(t *testing.T) {
 
 func TestGlusterFSAddNewNodeAddOneDevice(t *testing.T) {
 	c := &spec.StorageCluster{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageCluster",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 		},
@@ -539,11 +540,11 @@ func TestGlusterFSAddNewNodeAddOneDevice(t *testing.T) {
 	}
 
 	n := &spec.StorageNode{
-		TypeMeta: unversioned.TypeMeta{
+		TypeMeta: meta.TypeMeta{
 			Kind:       "StorageNode",
 			APIVersion: operator.TPRVersion,
 		},
-		ObjectMeta: api.ObjectMeta{
+		ObjectMeta: meta.ObjectMeta{
 			Name:      "test",
 			Namespace: "test",
 			Labels: map[string]string{
