@@ -19,10 +19,9 @@ import (
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
-	kubestorage "k8s.io/kubernetes/pkg/apis/storage"
+	storageclasspkg "k8s.io/client-go/pkg/apis/storage/v1"
 )
 
 const (
@@ -154,8 +153,9 @@ func (st *GlusterStorage) makeGlusterFSDeploymentSpec(s *spec.StorageNode) (*v1b
 	}
 
 	priv := true
+	replicas := int32(1)
 	spec := &v1beta1.DeploymentSpec{
-		Replicas: 1,
+		Replicas: &replicas,
 		Template: v1.PodTemplateSpec{
 			ObjectMeta: meta.ObjectMeta{
 				Labels: map[string]string{
@@ -182,10 +182,8 @@ func (st *GlusterStorage) makeGlusterFSDeploymentSpec(s *spec.StorageNode) (*v1b
 						},
 					},
 				},
-				Volumes: volumes,
-				SecurityContext: &v1.PodSecurityContext{
-					HostNetwork: true,
-				},
+				Volumes:     volumes,
+				HostNetwork: true,
 			},
 		},
 	}
@@ -208,7 +206,7 @@ func (st *GlusterStorage) deployStorageClass(namespace string) error {
 	scname := "gluster.qm." + namespace
 
 	// Create storage class
-	storageclass := &kubestorage.StorageClass{
+	storageclass := &storageclasspkg.StorageClass{
 		ObjectMeta: meta.ObjectMeta{
 			Name:      scname,
 			Namespace: namespace,
