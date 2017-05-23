@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/pkg/apis/extensions"
 	restclient "k8s.io/client-go/rest"
 )
@@ -269,7 +270,7 @@ func (st *NfsStorage) deployPv(s *spec.StorageNode) error {
 	}
 
 	// Create persistent volume
-	pv := &api.PersistentVolume{
+	pv := &v1.PersistentVolume{
 		ObjectMeta: meta.ObjectMeta{
 			Name:      s.GetName(),
 			Namespace: s.GetNamespace(),
@@ -277,15 +278,15 @@ func (st *NfsStorage) deployPv(s *spec.StorageNode) error {
 				"description": "Exposes NFS Service",
 			},
 		},
-		Spec: api.PersistentVolumeSpec{
-			Capacity: api.ResourceList{
-				api.ResourceName(api.ResourceStorage): resource.MustParse(size),
+		Spec: v1.PersistentVolumeSpec{
+			Capacity: v1.ResourceList{
+				v1.ResourceName(v1.ResourceStorage): resource.MustParse(size),
 			},
-			AccessModes: []api.PersistentVolumeAccessMode{
-				api.ReadWriteMany,
+			AccessModes: []v1.PersistentVolumeAccessMode{
+				v1.ReadWriteMany,
 			},
-			PersistentVolumeSource: api.PersistentVolumeSource{
-				NFS: &api.NFSVolumeSource{
+			PersistentVolumeSource: v1.PersistentVolumeSource{
+				NFS: &v1.NFSVolumeSource{
 					Server:   service.Spec.ClusterIP,
 					ReadOnly: readOnly,
 
@@ -309,7 +310,7 @@ func (st *NfsStorage) deployPv(s *spec.StorageNode) error {
 }
 
 func (st *NfsStorage) deployNfsService(namespace, name string) error {
-	s := &api.Service{
+	s := &v1.Service{
 		ObjectMeta: meta.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
@@ -317,26 +318,26 @@ func (st *NfsStorage) deployNfsService(namespace, name string) error {
 				"description": "Exposes NFS Service",
 			},
 		},
-		Spec: api.ServiceSpec{
+		Spec: v1.ServiceSpec{
 			Selector: map[string]string{
 				"name": name,
 			},
-			Ports: []api.ServicePort{
-				api.ServicePort{
+			Ports: []v1.ServicePort{
+				v1.ServicePort{
 					Name: "nfs",
 					Port: 2049,
 					TargetPort: intstr.IntOrString{
 						IntVal: 2049,
 					},
 				},
-				api.ServicePort{
+				v1.ServicePort{
 					Name: "mountd",
 					Port: 20048,
 					TargetPort: intstr.IntOrString{
 						IntVal: 20048,
 					},
 				},
-				api.ServicePort{
+				v1.ServicePort{
 					Name: "rpcbind",
 					Port: 111,
 					TargetPort: intstr.IntOrString{
