@@ -33,6 +33,7 @@ import (
 	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/clientcmd"
 
 	kubeclientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
 	"k8s.io/kubernetes/pkg/kubectl"
@@ -59,11 +60,13 @@ type Config struct {
 	Host        string
 	TLSInsecure bool
 	TLSConfig   restclient.TLSClientConfig
+	Kubeconfig  string
+	MasterUrl   string
 }
 
 // New creates a new controller.
 func New(c Config, storageFuns ...qmstorage.StorageTypeNewFunc) (*Operator, error) {
-	cfg, err := newClusterConfig(c.Host, c.TLSInsecure, &c.TLSConfig)
+	cfg, err := newClusterConfig(c.Host, c.Kubeconfig, c.TLSInsecure, &c.TLSConfig)
 	if err != nil {
 		return nil, logger.Err(err)
 	}
@@ -432,9 +435,13 @@ func ListOptions(name string) api.ListOptions {
 	}
 }
 
-func newClusterConfig(host string, tlsInsecure bool, tlsConfig *restclient.TLSClientConfig) (*restclient.Config, error) {
+func newClusterConfig(host, kubeconfig string, tlsInsecure bool, tlsConfig *restclient.TLSClientConfig) (*restclient.Config, error) {
 	var cfg *restclient.Config
 	var err error
+
+	if len(kubeconfig) != 0 {
+		return clientcmd.BuildConfigFromFlags("", kubeconfig)
+	}
 
 	if len(host) == 0 {
 		if cfg, err = restclient.InClusterConfig(); err != nil {

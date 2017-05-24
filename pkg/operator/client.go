@@ -58,7 +58,7 @@ func (d *storageNodeDecoder) Decode() (action watch.EventType, object runtime.Ob
 		Object spec.StorageNode
 	}
 	if err := d.dec.Decode(&e); err != nil {
-		return watch.Error, nil, err
+		return watch.Error, nil, logger.Err(err)
 	}
 	return e.Type, &e.Object, nil
 }
@@ -73,7 +73,7 @@ func (d *storageClusterDecoder) Decode() (action watch.EventType, object runtime
 		Object spec.StorageCluster
 	}
 	if err := d.dec.Decode(&e); err != nil {
-		return watch.Error, nil, err
+		return watch.Error, nil, logger.Err(err)
 	}
 	return e.Type, &e.Object, nil
 }
