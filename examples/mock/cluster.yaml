@@ -5,15 +5,9 @@ metadata:
 spec:
     type: mock
     storageNodes:
-        - nodeName: node0
+        - nodeName: node1.example.com
           directories:
               - /export
         - directories:
               - /export
-          nodeSelector:
-              disktype: sata
-        - image: gcr.io/google_containers/pause:2.0
-          nodeSelector:
-              disktype: ssd
-          directories:
-              - /export
+          nodeName: node2.example.com

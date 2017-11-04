@@ -35,8 +35,8 @@ const resyncPeriod = 5 * time.Minute
 func NewQuartermasterRESTClient(c restclient.Config) (*restclient.RESTClient, error) {
 	c.APIPath = "/apis"
 	c.GroupVersion = &schema.GroupVersion{
-		Group:   "storage.coreos.com",
-		Version: "v1alpha1",
+		Group:   TPRGroup,
+		Version: TPRVersion,
 	}
 	// TODO(fabxc): is this even used with our custom list/watch functions?
 	c.NegotiatedSerializer = serializer.DirectCodecFactory{CodecFactory: api.Codecs}
@@ -58,7 +58,7 @@ func (d *storageNodeDecoder) Decode() (action watch.EventType, object runtime.Ob
 		Object spec.StorageNode
 	}
 	if err := d.dec.Decode(&e); err != nil {
-		return watch.Error, nil, logger.Err(err)
+		return watch.Error, nil, err
 	}
 	return e.Type, &e.Object, nil
 }
@@ -73,7 +73,7 @@ func (d *storageClusterDecoder) Decode() (action watch.EventType, object runtime
 		Object spec.StorageCluster
 	}
 	if err := d.dec.Decode(&e); err != nil {
-		return watch.Error, nil, logger.Err(err)
+		return watch.Error, nil, err
 	}
 	return e.Type, &e.Object, nil
 }

@@ -23,6 +23,7 @@ import (
 	qmstorage "github.com/coreos/quartermaster/pkg/storage"
 	"github.com/heketi/utils"
 
+	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -42,6 +43,7 @@ var (
 type Operator struct {
 	kclient        *kubernetes.Clientset
 	rclient        *restclient.RESTClient
+	crdclient      *apiextensionsclient.Clientset
 	storageSystems map[spec.StorageTypeIdentifier]qmstorage.StorageType
 	nodeInf        cache.SharedIndexInformer
 	dsetInf        cache.SharedIndexInformer
@@ -75,6 +77,11 @@ func New(c Config, storageFuns ...qmstorage.StorageTypeNewFunc) (*Operator, erro
 		return nil, logger.Err(err)
 	}
 
+	crdclient, err := apiextensionsclient.NewForConfig(cfg)
+	if err != nil {
+		return nil, logger.Err(err)
+	}
+
 	// Initialize storage plugins
 	storageSystems := make(map[spec.StorageTypeIdentifier]qmstorage.StorageType)
 	for _, newStorage := range storageFuns {
@@ -94,6 +101,7 @@ func New(c Config, storageFuns ...qmstorage.StorageTypeNewFunc) (*Operator, erro
 	return &Operator{
 		kclient:        client,
 		rclient:        rclient,
+		crdclient:      crdclient,
 		queue:          newQueue(200),
 		host:           cfg.Host,
 		storageSystems: storageSystems,

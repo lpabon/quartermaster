@@ -1,8 +1,7 @@
 package: github.com/coreos/quartermaster
 import:
 - package: github.com/heketi/heketi
-  repo: https://github.com/lpabon/heketi.git
-  version: 04cf4bbced8e0835c31d1e3e397805eff3bd24c4
+  version: v5.0.0
   subpackages:
   - pkg/heketitest
   - pkg/glusterfs/api
@@ -11,4 +10,9 @@ import:
 - package: github.com/heketi/tests
   version: f3775cbcefd6822086c729e3ce4b70ca85a5bd21
 - package: k8s.io/client-go
-  version: v3.0.0-beta.0
+  version: v4.0.0
+- package: k8s.io/apiextensions-apiserver
+  version: 5fa44608f6b9b2180a2fd1ecb52e651fd0397794
+- package: k8s.io/apimachinery
+  version: abe34e4f5b4413c282a83011892cbeea5b32223b
+
