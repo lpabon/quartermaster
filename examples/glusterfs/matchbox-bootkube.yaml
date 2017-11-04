@@ -8,7 +8,7 @@ spec:
         - nodeName: node1.example.com
           storageNetwork:
             ips:
-                - 172.18.0.21
+                - 172.17.0.21
           devices:
               - /dev/sdb
           glusterfs:
@@ -16,7 +16,7 @@ spec:
         - nodeName: node2.example.com
           storageNetwork:
             ips:
-                - 172.18.0.22
+                - 172.17.0.22
           devices:
               - /dev/sdb
           glusterfs:
@@ -24,7 +24,7 @@ spec:
         - nodeName: node3.example.com
           storageNetwork:
             ips:
-                - 172.18.0.23
+                - 172.17.0.23
           devices:
               - /dev/sdb
           glusterfs:

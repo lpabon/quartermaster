@@ -82,7 +82,7 @@ func (st *GlusterStorage) deployHeketiPod(c *spec.StorageCluster) error {
 	)
 
 	// Get image
-	image := "heketi/heketi:dev"
+	image := "heketi/heketi:5"
 	if c.Spec.GlusterFS == nil {
 		c.Spec.GlusterFS = &spec.GlusterStorageCluster{
 			HeketiImage: image,
