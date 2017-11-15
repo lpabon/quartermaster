@@ -43,7 +43,7 @@ documentation for any requirements on these systems.
 Deploy Quartermaster to the kube-system namespace:
 
 ```
-kubectl run -n kube-system kube-qm --image=quay.io/lpabon/qm
+kubectl run -n kube-system kube-qm --image=docker.io/lpabon/qm:dev
 ```
 
 Now that Quartermaster is running, you can deploy one of the following storage
